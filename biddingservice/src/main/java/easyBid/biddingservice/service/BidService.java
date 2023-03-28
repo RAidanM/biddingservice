@@ -14,4 +14,6 @@ public interface BidService {
     Bid updateBid(Bid bid);
 
     void deleteBid(Long bidId);
+
+
 }

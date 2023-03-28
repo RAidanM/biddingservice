@@ -4,11 +4,12 @@ import easyBid.biddingservice.entity.Bid;
 import easyBid.biddingservice.service.BidService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("api/bids")
 public class BidController {
 
@@ -19,19 +20,36 @@ public class BidController {
         this.bidService=bidService;
     }
 
+    @GetMapping("/bidroom")
+    public String goBidroom() {
+        return "bidroom";
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<Bid> getBidById(@PathVariable("id") Long bidId){
+        Bid bid = bidService.getBidById(bidId);
+        return new ResponseEntity<>(bid, HttpStatus.OK);
+    }
+
+//    @GetMapping("/page")
+//    public String showPage() {
+//        return "page";
+//    }
+//
+//    @PostMapping("/myFormSubmit")
+//    public String handleFormSubmit(@RequestParam("inputData") String inputData) {
+//        // do something with the submitted data
+//        System.out.println("Submitted data: " + inputData);
+//
+//        // return the name of the Thymeleaf template to render
+//        return "page";
+//    }
+
     // build create Bid REST API
     @PostMapping
     public ResponseEntity<Bid> createBid(@RequestBody Bid bid){
         Bid savedBid = bidService.createBid(bid);
         return new ResponseEntity<>(savedBid, HttpStatus.CREATED);
-    }
-
-    // build get Bid by id REST API
-    // http://localhost:8080/api/Bids/1
-    @GetMapping("{id}")
-    public ResponseEntity<Bid> getBidById(@PathVariable("id") Long bidId){
-        Bid bid = bidService.getBidById(bidId);
-        return new ResponseEntity<>(bid, HttpStatus.OK);
     }
 
     // Build Get All Bids REST API

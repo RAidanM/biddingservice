@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    <title>Bidding Page</title>
+</head>
+
+<!--<script type="text/javascript" src="web/timer.js">-->
+<!--    ;-->
+<!--</script>-->
+
+<body>
+
+<h1>Bidding page for</h1>
+<p>Time elapsed: <span th:text="${elapsedTime}">0</span> seconds</p>
+
+<script th:inline="javascript">
+    var startTime = new Date().getTime();
+    var elapsedTime = 0;
+    setInterval(function() {
+        elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
+        document.querySelector('[th\\:text="${elapsedTime}"]').textContent = elapsedTime;
+    }, 1000);
+</script>
+
+<!--<script>-->
+<!--    countDown('Jan 5, 2024 15:37:25');-->
+<!--</script>-->
+
+<form method="post" action="/myFormSubmit">
+    <input type="text" name="inputData"/>
+    <button type="submit">Submit</button>
+</form>
+
+</body>
+</html>

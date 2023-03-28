@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,30 +13,17 @@ import java.util.Date;
 @Setter
 
 @Entity
-@Table(name = "bids")
-public class Bid {
+@Table(name = "bidrecords")
+public class BiddingRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false)
-    private long itemId;
-
+    private String biddingUser;
     @Column(nullable = false)
-    private String startDate;
-
-    @Column(nullable = false)
-    private String endDate;
-
-    @Column(nullable = false)
-    private double currentBid;
-
-    @Column(nullable = false)
-    private double dutchFallRate;
-
-    @Column(nullable = false)
-    private double dutchLength;
-
+    private double bidPrice;
+    @Column(nullable = false, unique = true)
+    private String bidDate;
 
 }
