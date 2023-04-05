@@ -5,9 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.util.Date;
-
+import java.sql.Date;
+import java.sql.Time;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,22 +24,19 @@ public class Bid {
     private Long id;
 
     @Column(nullable = false)
-    private long itemId;
+    private long auctionId;
 
     @Column(nullable = false)
-    private String startDate;
+    private double bidPrice;
 
-    @Column(nullable = false)
-    private String endDate;
+    @Column
+    //@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @CreationTimestamp
+    private Date bidDate;
 
-    @Column(nullable = false)
-    private double currentBid;
-
-    @Column(nullable = false)
-    private double dutchFallRate;
-
-    @Column(nullable = false)
-    private double dutchLength;
-
+    @Column
+    //@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @CreationTimestamp
+    private Time bidTime;
 
 }

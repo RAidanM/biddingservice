@@ -1,6 +1,7 @@
 package easyBid.biddingservice.controller;
 
 import easyBid.biddingservice.entity.Bid;
+import easyBid.biddingservice.entity.BiddingRecord;
 import easyBid.biddingservice.service.BidService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,30 +21,11 @@ public class BidController {
         this.bidService=bidService;
     }
 
-    @GetMapping("/bidroom")
-    public String goBidroom() {
-        return "bidroom";
-    }
-
     @GetMapping("{id}")
     public ResponseEntity<Bid> getBidById(@PathVariable("id") Long bidId){
         Bid bid = bidService.getBidById(bidId);
         return new ResponseEntity<>(bid, HttpStatus.OK);
     }
-
-//    @GetMapping("/page")
-//    public String showPage() {
-//        return "page";
-//    }
-//
-//    @PostMapping("/myFormSubmit")
-//    public String handleFormSubmit(@RequestParam("inputData") String inputData) {
-//        // do something with the submitted data
-//        System.out.println("Submitted data: " + inputData);
-//
-//        // return the name of the Thymeleaf template to render
-//        return "page";
-//    }
 
     // build create Bid REST API
     @PostMapping
@@ -76,4 +58,5 @@ public class BidController {
         bidService.deleteBid(bidId);
         return new ResponseEntity<>("Bid successfully deleted!", HttpStatus.OK);
     }
+
 }

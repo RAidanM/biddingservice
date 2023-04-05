@@ -1,6 +1,7 @@
 package easyBid.biddingservice.service;
 
 import easyBid.biddingservice.entity.Bid;
+import easyBid.biddingservice.entity.BiddingRecord;
 
 import java.util.List;
 
@@ -14,6 +15,5 @@ public interface BidService {
     Bid updateBid(Bid bid);
 
     void deleteBid(Long bidId);
-
 
 }

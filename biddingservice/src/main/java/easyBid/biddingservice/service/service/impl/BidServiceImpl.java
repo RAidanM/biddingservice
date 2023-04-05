@@ -1,6 +1,7 @@
 package easyBid.biddingservice.service.service.impl;
 
 import easyBid.biddingservice.entity.Bid;
+import easyBid.biddingservice.entity.BiddingRecord;
 import easyBid.biddingservice.repository.BidRepository;
 import easyBid.biddingservice.service.BidService;
 import lombok.AllArgsConstructor;
@@ -37,9 +38,10 @@ public class BidServiceImpl implements BidService {
     @Override
     public Bid updateBid(Bid bid) {
         Bid existingBid = bidRepository.findById(bid.getId()).get();
-        existingBid.setItemId(bid.getItemId());
-        existingBid.setStartDate(bid.getStartDate());
-        existingBid.setCurrentBid(bid.getCurrentBid());
+        existingBid.setBidPrice(bid.getBidPrice());
+        existingBid.setId(bid.getId());
+        existingBid.setBidDate(bid.getBidDate());
+        existingBid.setBidTime(bid.getBidTime());
         Bid updatedBid = bidRepository.save(existingBid);
         return updatedBid;
     }
@@ -48,4 +50,6 @@ public class BidServiceImpl implements BidService {
     public void deleteBid(Long bidId) {
         bidRepository.deleteById(bidId);
     }
+
+
 }
