@@ -27,6 +27,9 @@ public class Bid {
     private long auctionId;
 
     @Column(nullable = false)
+    private long userId;
+
+    @Column(nullable = false)
     private double bidPrice;
 
     @Column
