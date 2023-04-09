@@ -74,20 +74,21 @@ public class BidController {
         return "timer";
     }
 
-    @GetMapping("/room")
-    public String startRoom(HttpServletRequest request, HttpServletResponse response) {
-
+    @GetMapping("/room/{username}/{itemId}")
+    public String startRoom(HttpServletRequest request, HttpServletResponse response, @PathVariable String username, @PathVariable long itemId) {
         //Faruq  vv
-        String auctionId = (String) request.getSession().getAttribute("itemId");
-        String userId = (String) request.getSession().getAttribute("username");
-        System.out.println("AuctionId: " + auctionId + "Username:" +userId);
+//        String auctionId = (String) request.getSession().getAttribute("itemId");
+//        String userId = (String) request.getSession().getAttribute("username");
+        System.out.println("AuctionId: " + itemId + " Username: " + username);
+
+        request.getSession().setAttribute("username", username);
+        request.getSession().setAttribute("itemId", itemId);
 
         //Aidan  vv
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8090/auction/items/"+auctionId;
+        String url = "http://localhost:8090/auction/items/"+itemId;
         String r = restTemplate.getForObject(url, String.class);
         System.out.println("Response: " + r);
-
 
         return "timer";
     }
