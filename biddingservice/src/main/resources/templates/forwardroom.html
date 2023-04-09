@@ -21,7 +21,7 @@
                     class="icon-bar"></span> <span class="icon-bar"></span> <span
                     class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#" th:href="@{/}">Create Bid</a>
+            <a class="navbar-brand" href="#" th:href="@{/}">Bidding on: </a>
         </div>
     </div>
 </nav>
@@ -39,15 +39,20 @@
                 <!-- Display item info here -->
                 <h3>Item Description</h3>
                 <h4>Name:</h4>
-                <div></div>
+                <p th:text="${auctionItem.getName()}" />
                 <h4>Shipping Price:</h4>
+                <p th:text="${auctionItem.getShip_price_ex()}" />
                 <h4>Highest Bidder:</h4>
+                <p th:text="${auctionItem.getCurrent_bidder_id()}" />
                 <h4>Current Price:</h4>
+                <p th:text="${auctionItem.getCurrent_price()}" />
             </div>
-            <form action="#" th:action="@{/forwardroom}" th:object="${bid}" method="post">
+
+            <form action="#" th:action="@{/room/420}" th:object="${bid}" method="post">
                 <p>Price($): <input type="text" th:field="*{bidPrice}"/></p>
                 <p><input type="submit" value="Submit"/> <input type="reset" value="Reset"/></p>
             </form>
+
         </div>
     </div>
 </div>
