@@ -7,12 +7,10 @@
 <body>
 
 <h1>Result</h1>
-
-<p th:text="'ID: ' + ${biddingRecord.id}" />
-<p th:text="'Bidder: ' + ${biddingRecord.biddingUser}" />
-<p th:text="'Date: ' + ${biddingRecord.bidDate}" />
-<p th:text="'Price: ' + ${biddingRecord.bidPrice}" />
-<a href="/greeting">Submit another message</a>
+<div>
+  <p th:text="'Price: ' + ${bid.bidPrice}" />
+  <a href="/placebid">Submit another message</a>
+</div>
 
 </body>
 </html>
