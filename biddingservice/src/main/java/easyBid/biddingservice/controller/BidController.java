@@ -74,14 +74,14 @@ public class BidController {
         return "timer";
     }
 
-    @GetMapping("/room/{username}/{itemId}")
-    public String startRoom(HttpServletRequest request, HttpServletResponse response, @PathVariable String username, @PathVariable long itemId) {
+    @GetMapping("/room/{uID}/{itemId}")
+    public String startRoom(HttpServletRequest request, HttpServletResponse response, @PathVariable String uID, @PathVariable long itemId) {
         //Faruq  vv
 //        String auctionId = (String) request.getSession().getAttribute("itemId");
 //        String userId = (String) request.getSession().getAttribute("username");
-        System.out.println("AuctionId: " + itemId + " Username: " + username);
+        System.out.println("AuctionId: " + itemId + " uID: " + uID);
 
-        request.getSession().setAttribute("username", username);
+        request.getSession().setAttribute("uID", uID);
         request.getSession().setAttribute("itemId", itemId);
 
         //Aidan  vv
