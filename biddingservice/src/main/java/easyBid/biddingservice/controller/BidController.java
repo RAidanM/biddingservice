@@ -13,6 +13,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
+
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -74,33 +79,33 @@ public class BidController {
         return "timer";
     }
 
-    @GetMapping("/room")
-    public String startRoom(HttpServletRequest request, HttpServletResponse response) {
+//    @GetMapping("/room")
+//    public String startRoom(HttpServletRequest request, HttpServletResponse response) {
+//
+//        //Faruq  vv
+//        String auctionId = (String) request.getSession().getAttribute("itemId");
+//        String userId = (String) request.getSession().getAttribute("username");
+//        System.out.println("AuctionId: " + auctionId + "Username:" +userId);
+//
+//        //Aidan  vv
+//        RestTemplate restTemplate = new RestTemplate();
+//        String url = "http://localhost:8090/auction/items/"+auctionId;
+//        String r = restTemplate.getForObject(url, String.class);
+//        System.out.println("Response: " + r);
+//
+//
+//        return "timer";
+//    }
 
-        //Faruq  vv
-        String auctionId = (String) request.getSession().getAttribute("itemId");
-        String userId = (String) request.getSession().getAttribute("username");
-        System.out.println("AuctionId: " + auctionId + "Username:" +userId);
+    @GetMapping("/room/{user}/{id}")
+    public String getRoom(@PathVariable("id") Long auctionId, @PathVariable("user") Long userId, Model model) {
 
-        //Aidan  vv
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8090/auction/items/"+auctionId;
-        String r = restTemplate.getForObject(url, String.class);
-        System.out.println("Response: " + r);
-
-
-        return "timer";
-    }
-
-    @GetMapping("/room/{id}")
-    public String getRoom(@PathVariable("id") Long auctionId, Model model) {
-
-        RestTemplate restTemplate = new RestTemplate();
+        restTemplate = new RestTemplate();
 
         //GET from AuctionDB
         String url = "http://localhost:8090/auction/items/"+auctionId;
         AuctionItem auctionItem = restTemplate.getForObject(url, AuctionItem.class);
-        System.out.println("Response: " + auctionItem.toString());
+        System.out.println("Response: " + auctionItem);
 
         //GET from UserDB
 //        url = "http://localhost:8080/userNameTransfer/"+auctionItem.getCurrent_bidder_id();
@@ -109,8 +114,8 @@ public class BidController {
 
         //model
         model.addAttribute("auctionItem", auctionItem);
+        model.addAttribute("userId", userId);
 //        model.addAttribute("highestBidderName", highest_bidder_name);
-
         model.addAttribute("bid", new Bid());
 
 
@@ -127,19 +132,76 @@ public class BidController {
         }
     }
 
-    //TODO
-    @PostMapping("/room/{id}")
-    public String forwardSubmit(@PathVariable("id") Long auctionId, @ModelAttribute Bid bid) {
+    @PostMapping("/room/{user}/{id}")
+    public String forwardSubmit(@PathVariable("user") Long userId, @PathVariable("id") Long auctionId,
+                                @ModelAttribute Bid bid, @ModelAttribute AuctionItem auctionItem, Model model) {
+
+        //GET from AuctionDB //TODO replace second GET call with model
+        restTemplate = new RestTemplate();
+        String url2 = "http://localhost:8090/auction/items/"+auctionId;
+        AuctionItem auctionItemReplace = restTemplate.getForObject(url2, AuctionItem.class);
+        System.out.println("Response: " + auctionItemReplace);
+
         System.out.println("Auction Id:"+auctionId);
+        System.out.println("User Id:"+userId);
         System.out.println("Bid:"+bid.getBidPrice());
+        System.out.println("Auction Item:"+auctionItemReplace);
+
+        //Temp set user
+        bid.setUserId(userId);
+        bid.setAuctionId(auctionId);
+
+        //Check Bid
+        System.out.println(bid);
 
         //MAKE BID FOR AUCTION ITEM
-        //SEND PUT TO UPDATE AUCTIONITEM
+        createBid(bid);
+
+        //Checks to ensure higher Bid then current highest bid
+        if(auctionItemReplace.getCurrent_price() < bid.getBidPrice()){
 
 
+            auctionItemReplace.setCurrent_price(bid.getBidPrice());
+            auctionItemReplace.setCurrent_bidder_id(bid.getUserId());
+            System.out.println(auctionItemReplace);
 
-        return "forwardroom";
+            restTemplate = new RestTemplate();
+
+            String url = "http://localhost:8090/auction/items/"+auctionId;
+
+            // create a request object with the data to be updated
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<AuctionItem> requestEntity = new HttpEntity<>(auctionItemReplace, headers);
+
+            // send the PUT request
+            restTemplate.put(url, requestEntity);
+            System.out.println("Put:" + auctionItemReplace);
+        }
+        else {System.out.println("Bid not high enough");}
+
+        return getRoom(auctionId, userId, model);
     }
+
+//    @GetMapping("/room/{username}/{itemId}")
+//    public String startRoom(HttpServletRequest request, HttpServletResponse response, @PathVariable String username, @PathVariable long itemId) {
+//        System.out.println("StartRoom");
+//        //Faruq  vv
+////        String auctionId = (String) request.getSession().getAttribute("itemId");
+////        String userId = (String) request.getSession().getAttribute("username");
+//        System.out.println("AuctionId: " + itemId + " Username: " + username);
+//
+//        request.getSession().setAttribute("username", username);
+//        request.getSession().setAttribute("itemId", itemId);
+//
+//        //Aidan  vv
+//        RestTemplate restTemplate = new RestTemplate();
+//        String url = "http://localhost:8090/auction/items/"+itemId;
+//        String r = restTemplate.getForObject(url, String.class);
+//        System.out.println("Response: " + r);
+//
+//        return "timer";
+//    }
 
     @GetMapping("/auctionended")
     public String goAuctionEnded() {

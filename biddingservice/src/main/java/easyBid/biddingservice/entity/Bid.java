@@ -1,10 +1,7 @@
 package easyBid.biddingservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Date;
@@ -14,6 +11,7 @@ import java.sql.Time;
 @AllArgsConstructor
 @Getter
 @Setter
+@ToString
 
 @Entity
 @Table(name = "bids")
