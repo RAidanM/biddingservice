@@ -183,6 +183,47 @@ public class BidController {
         return getRoom(auctionId, userId, model);
     }
 
+    @PostMapping("/room/{user}/{id}")
+    public String dutchSubmit(@PathVariable("user") Long userId, @PathVariable("id") Long auctionId,
+                                @ModelAttribute Bid bid, @ModelAttribute AuctionItem auctionItem, Model model) {
+
+        //GET from AuctionDB //TODO replace second GET call with model (still works just not efficent)
+        restTemplate = new RestTemplate();
+        String url2 = "http://localhost:8090/auction/items/"+auctionId;
+        AuctionItem auctionItemReplace = restTemplate.getForObject(url2, AuctionItem.class);
+        System.out.println("Response: " + auctionItemReplace);
+
+        System.out.println("Auction Id:"+auctionId);
+        System.out.println("User Id:"+userId);
+        System.out.println("Bid:"+bid.getBidPrice());
+        System.out.println("Auction Item:"+auctionItemReplace);
+
+        //Set Bid
+        bid.setUserId(userId);
+        bid.setAuctionId(auctionId);
+        bid.setBidPrice(auctionItem.getCurrent_price());
+
+        //Check Bid
+        System.out.println(bid);
+
+        //MAKE BID FOR AUCTION ITEM
+        createBid(bid);
+
+        auctionItemReplace.setCurrent_bidder_id(bid.getUserId());
+
+        String url = "http://localhost:8090/auction/items/"+auctionId;
+
+        // create a request object with the data to be updated
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<AuctionItem> requestEntity = new HttpEntity<>(auctionItemReplace, headers);
+
+        // send the PUT request
+        restTemplate.put(url, requestEntity);
+        System.out.println("Put:" + auctionItemReplace);
+
+        return goAuctionEnded(userId, auctionId);
+    }
     @GetMapping("/auctionended/{user}/{id}")
     public String goAuctionEnded(@PathVariable("user") Long userId, @PathVariable("id") Long auctionId) {
 

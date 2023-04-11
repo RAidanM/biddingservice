@@ -7,6 +7,9 @@
         href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
         integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
         crossorigin="anonymous">
+
+
+
 </head>
 
 <body>
@@ -21,7 +24,7 @@
               class="icon-bar"></span> <span class="icon-bar"></span> <span
               class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#" th:href="@{/}">Dutch Item Auction</a>
+      <a class="navbar-brand" href="#" th:href="@{/}">Bidding on: </a>
     </div>
   </div>
 </nav>
@@ -39,15 +42,21 @@
         <!-- Display item info here -->
         <h3>Item Description</h3>
         <h4>Name:</h4>
-        <p th:text="'Name: ' + ${auctionItem.getName()}" />
+        <p th:text="${auctionItem.getName()}" />
+        <h4>Description:</h4>
+        <p th:text="${auctionItem.getDescription()}" />
         <h4>Shipping Price:</h4>
-        <p th:text="'Shipping Price: ' + ${auctionItem.getShip_price_ex()}" />
+        <p th:text="${auctionItem.getShip_price_ex()}" />
+        <h4>Highest Bidder:</h4>
+        <p th:text="${auctionItem.getCurrent_bidder_id()}" />
         <h4>Current Price:</h4>
-        <p th:text="'Name: ' + ${auctionItem.getCurrent_price()}" />
+        <p th:text="${auctionItem.getCurrent_price()}" />
       </div>
-      <form action="#" th:action="@{/dutchroom}" th:object="${bid}" method="post">
-        <p><input type="submit" value="Buy Now"/></p>
+
+      <form action="#" th:action="@{/room/{user}/{id}(user=${userId},id=${auctionItem.getId()})}" th:object="${bid}" method="post">
+        <p><input type="submit" value="Submit"/></p>
       </form>
+
     </div>
   </div>
 </div>
