@@ -16,15 +16,26 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
+
+import java.io.IOException;
 import java.sql.Time;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.method.HandlerMethod;
+
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
 
 @Controller
 public class BidController {
@@ -37,7 +48,7 @@ public class BidController {
     public BidController(BidService bidService){
         this.bidService=bidService;
     }
-
+    
     @GetMapping("api/bids/{id}")
     public ResponseEntity<Bid> getBidById(@PathVariable("id") Long bidId){
         Bid bid = bidService.getBidById(bidId);
@@ -79,6 +90,14 @@ public class BidController {
     @GetMapping("/timer")
     public String goTimer() {
         return "timer";
+    }
+
+    @GetMapping("/success")
+    public String goSuccess(Model model) {
+        // population empty attributes
+        model.addAttribute("auctionItem", new AuctionItem());
+        model.addAttribute("userId", 1L);
+        return "success";
     }
 
     @GetMapping("/room/{user}/{id}")
@@ -126,7 +145,7 @@ public class BidController {
         }
     }
 
-    @PostMapping("/room/{user}/{id}")
+    @PostMapping("/room/forward/{user}/{id}")
     public String forwardSubmit(@PathVariable("user") Long userId, @PathVariable("id") Long auctionId,
                                 @ModelAttribute Bid bid, @ModelAttribute AuctionItem auctionItem, Model model) {
 
@@ -183,7 +202,7 @@ public class BidController {
         return getRoom(auctionId, userId, model);
     }
 
-    @PostMapping("/room/{user}/{id}")
+    @PostMapping("/room/dutch/{user}/{id}")
     public String dutchSubmit(@PathVariable("user") Long userId, @PathVariable("id") Long auctionId,
                                 @ModelAttribute Bid bid, @ModelAttribute AuctionItem auctionItem, Model model) {
 
@@ -222,16 +241,20 @@ public class BidController {
         restTemplate.put(url, requestEntity);
         System.out.println("Put:" + auctionItemReplace);
 
-        return goAuctionEnded(userId, auctionId);
+        return goAuctionEnded(userId, auctionId, model);
     }
     @GetMapping("/auctionended/{user}/{id}")
-    public String goAuctionEnded(@PathVariable("user") Long userId, @PathVariable("id") Long auctionId) {
+    public String goAuctionEnded(@PathVariable("user") Long userId, @PathVariable("id") Long auctionId, Model model) {
 
         //GET from AuctionDB //TODO replace second GET call with model (still works just not efficent)
         restTemplate = new RestTemplate();
         String url2 = "http://localhost:8090/auction/items/"+auctionId;
         AuctionItem auctionItemReplace = restTemplate.getForObject(url2, AuctionItem.class);
         System.out.println("Response: " + auctionItemReplace);
+
+        // Added for model on success.html page
+        model.addAttribute("userId", userId);
+        model.addAttribute("auctionItem", auctionItemReplace);
 
         System.out.println(auctionItemReplace.getCurrent_bidder_id()+"=="+userId);
 
@@ -243,6 +266,30 @@ public class BidController {
             System.out.println("Loser");
             return "auctionended";
         }
+    }
+
+    // used to go to the payment microservice
+    @GetMapping("/toPayment/{uID}/{itemId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void toPayment(HttpServletResponse response,
+                          @PathVariable String uID, @PathVariable long itemId,
+                          @RequestParam(name = "expeditedShipping", required = false) Boolean expeditedShipping,
+                          Model model)  throws IOException, IOException {
+
+        String target = "http://localhost:8081/checkout";// sends to checkout page //"+uID+"/"+itemId;
+
+        model.addAttribute("expeditedShipping", expeditedShipping != null && expeditedShipping);
+        model.addAttribute("userId", uID);
+        model.addAttribute("auctionItemId", itemId);
+
+        target = target + "/" + model.getAttribute("userId")
+                        + "/" + model.getAttribute("auctionItemId")
+                        + "/" + model.getAttribute("expeditedShipping");
+
+        System.out.println(target);
+        response.sendRedirect(target);
+        System.out.println("Sent to Payment Page");
+        //return new ResponseEntity<>("Redirected to Payment Successfully", HttpStatus.OK);
     }
 
 }

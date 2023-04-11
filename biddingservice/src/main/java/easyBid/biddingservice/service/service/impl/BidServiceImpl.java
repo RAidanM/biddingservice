@@ -1,7 +1,7 @@
 package easyBid.biddingservice.service.service.impl;
 
 import easyBid.biddingservice.entity.Bid;
-import easyBid.biddingservice.entity.BiddingRecord;
+//import easyBid.biddingservice.entity.BiddingRecord;
 import easyBid.biddingservice.repository.BidRepository;
 import easyBid.biddingservice.service.BidService;
 import lombok.AllArgsConstructor;

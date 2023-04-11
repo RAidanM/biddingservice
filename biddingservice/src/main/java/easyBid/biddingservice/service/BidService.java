@@ -1,7 +1,7 @@
 package easyBid.biddingservice.service;
 
 import easyBid.biddingservice.entity.Bid;
-import easyBid.biddingservice.entity.BiddingRecord;
+//import easyBid.biddingservice.entity.BiddingRecord;
 
 import java.util.List;
 
