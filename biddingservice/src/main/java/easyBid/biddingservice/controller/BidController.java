@@ -18,6 +18,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 
+import java.sql.Time;
+import java.util.Date;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -79,24 +81,6 @@ public class BidController {
         return "timer";
     }
 
-//    @GetMapping("/room")
-//    public String startRoom(HttpServletRequest request, HttpServletResponse response) {
-//
-//        //Faruq  vv
-//        String auctionId = (String) request.getSession().getAttribute("itemId");
-//        String userId = (String) request.getSession().getAttribute("username");
-//        System.out.println("AuctionId: " + auctionId + "Username:" +userId);
-//
-//        //Aidan  vv
-//        RestTemplate restTemplate = new RestTemplate();
-//        String url = "http://localhost:8090/auction/items/"+auctionId;
-//        String r = restTemplate.getForObject(url, String.class);
-//        System.out.println("Response: " + r);
-//
-//
-//        return "timer";
-//    }
-
     @GetMapping("/room/{user}/{id}")
     public String getRoom(@PathVariable("id") Long auctionId, @PathVariable("user") Long userId, Model model) {
 
@@ -107,16 +91,26 @@ public class BidController {
         AuctionItem auctionItem = restTemplate.getForObject(url, AuctionItem.class);
         System.out.println("Response: " + auctionItem);
 
-        //GET from UserDB
+        //GET from UserDB //TODO Uncomment this and make work
 //        url = "http://localhost:8080/userNameTransfer/"+auctionItem.getCurrent_bidder_id();
 //        String highest_bidder_name = restTemplate.getForObject(url, String.class);
 //        System.out.println("Response: " + highest_bidder_name);
+
+        //SETTING TIME
+        Date startDate = auctionItem.getCreate_date();
+        int length = auctionItem.getAuction_length();
+        long endTime = length * 3600000L;
+        Date endDate = new Date(startDate.getTime()+endTime);
+        Date currentTime = new Date();
+        long timeLeft = endDate.getTime()-currentTime.getTime();
+        long timeLeftSeconds = timeLeft/1000L;
 
         //model
         model.addAttribute("auctionItem", auctionItem);
         model.addAttribute("userId", userId);
 //        model.addAttribute("highestBidderName", highest_bidder_name);
         model.addAttribute("bid", new Bid());
+        model.addAttribute("timeleft", timeLeftSeconds);
 
 
         //choosing dutch or forward page
@@ -136,7 +130,7 @@ public class BidController {
     public String forwardSubmit(@PathVariable("user") Long userId, @PathVariable("id") Long auctionId,
                                 @ModelAttribute Bid bid, @ModelAttribute AuctionItem auctionItem, Model model) {
 
-        //GET from AuctionDB //TODO replace second GET call with model
+        //GET from AuctionDB //TODO replace second GET call with model (still works just not efficent)
         restTemplate = new RestTemplate();
         String url2 = "http://localhost:8090/auction/items/"+auctionId;
         AuctionItem auctionItemReplace = restTemplate.getForObject(url2, AuctionItem.class);
@@ -147,7 +141,7 @@ public class BidController {
         System.out.println("Bid:"+bid.getBidPrice());
         System.out.println("Auction Item:"+auctionItemReplace);
 
-        //Temp set user
+        //Set Bid
         bid.setUserId(userId);
         bid.setAuctionId(auctionId);
 
@@ -157,9 +151,15 @@ public class BidController {
         //MAKE BID FOR AUCTION ITEM
         createBid(bid);
 
-        //Checks to ensure higher Bid then current highest bid
-        if(auctionItemReplace.getCurrent_price() < bid.getBidPrice()){
+        //SETTING TIME
+        Date startDate = auctionItemReplace.getCreate_date();
+        int length = auctionItemReplace.getAuction_length();
+        long endTime = length * 3600000;
+        Date endDate = new Date(startDate.getTime()+endTime);
+        Date currentTime = new Date();
 
+        //Checks to ensure higher Bid then current highest bid
+        if(auctionItemReplace.getCurrent_price() < bid.getBidPrice() && endDate.compareTo(currentTime) >= 0){
 
             auctionItemReplace.setCurrent_price(bid.getBidPrice());
             auctionItemReplace.setCurrent_bidder_id(bid.getUserId());
@@ -178,34 +178,30 @@ public class BidController {
             restTemplate.put(url, requestEntity);
             System.out.println("Put:" + auctionItemReplace);
         }
-        else {System.out.println("Bid not high enough");}
+        else {System.out.println("Bid not high enough or past auction time");}
 
         return getRoom(auctionId, userId, model);
     }
 
-//    @GetMapping("/room/{username}/{itemId}")
-//    public String startRoom(HttpServletRequest request, HttpServletResponse response, @PathVariable String username, @PathVariable long itemId) {
-//        System.out.println("StartRoom");
-//        //Faruq  vv
-////        String auctionId = (String) request.getSession().getAttribute("itemId");
-////        String userId = (String) request.getSession().getAttribute("username");
-//        System.out.println("AuctionId: " + itemId + " Username: " + username);
-//
-//        request.getSession().setAttribute("username", username);
-//        request.getSession().setAttribute("itemId", itemId);
-//
-//        //Aidan  vv
-//        RestTemplate restTemplate = new RestTemplate();
-//        String url = "http://localhost:8090/auction/items/"+itemId;
-//        String r = restTemplate.getForObject(url, String.class);
-//        System.out.println("Response: " + r);
-//
-//        return "timer";
-//    }
+    @GetMapping("/auctionended/{user}/{id}")
+    public String goAuctionEnded(@PathVariable("user") Long userId, @PathVariable("id") Long auctionId) {
 
-    @GetMapping("/auctionended")
-    public String goAuctionEnded() {
-        return "auctionended";
+        //GET from AuctionDB //TODO replace second GET call with model (still works just not efficent)
+        restTemplate = new RestTemplate();
+        String url2 = "http://localhost:8090/auction/items/"+auctionId;
+        AuctionItem auctionItemReplace = restTemplate.getForObject(url2, AuctionItem.class);
+        System.out.println("Response: " + auctionItemReplace);
+
+        System.out.println(auctionItemReplace.getCurrent_bidder_id()+"=="+userId);
+
+        if(auctionItemReplace.getCurrent_bidder_id()==userId){
+            System.out.println("Winner");
+            return "success";
+        }
+        else {
+            System.out.println("Loser");
+            return "auctionended";
+        }
     }
 
 }

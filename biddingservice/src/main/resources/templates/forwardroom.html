@@ -9,6 +9,7 @@
           crossorigin="anonymous">
 
 
+
 </head>
 
 <body>
@@ -58,11 +59,23 @@
                 <p><input type="submit" value="Submit"/> <input type="reset" value="Reset"/></p>
             </form>
 
-            <div>
-                <p id="demo"></p>
 
+            <script th:inline="javascript">
+                //TODO modify to be time remaining from model atrributes
+                var count = "needvalue";//->model.timeLeftSeconds
+                var userId = "needvalue";//->model.userId
+                var itemId = "needvalue";//->model.auctionItem
+                var timer = setInterval(function() {
+                    count--;
+                    document.getElementById("timer").innerHTML = count;
+                    if (count == 0) {
+                        clearInterval(timer);
+                        window.location.href = "/auctionended/"+userId+"/"+itemId;
+                    }
+                }, 1000);
+            </script>
 
-            </div>
+            <p>The auction will be over in <span id="timer"></span> seconds.</p>
 
         </div>
     </div>
