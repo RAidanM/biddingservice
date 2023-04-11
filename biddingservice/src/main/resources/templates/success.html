@@ -9,23 +9,35 @@
           crossorigin="anonymous">
 </head>
 <body>
-<h3>Bidding Ended</h3>
-    <h4>Item:</h4>                 <p th:text="${auctionItem.getName()}" >  <p/>
-    <h4>Item Description:</h4>    <p th:text="${auctionItem.getDescription()}" />
-    <h4>Winning Price:</h4>         <p th:text="${auctionItem.getCurrent_price()}" />
-    <h4>Highest Bidder:</h4>        <p th:text="${userId}" />
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h3>Bidding Ended</h3>
+            <h4>Item:</h4>
+            <p th:text="${auctionItem.getName()}">
+            <p/>
+            <h4>Item Description:</h4>
+            <p th:text="${auctionItem.getDescription()}"/>
+            <h4>Winning Price:</h4>
+            <p th:text="${auctionItem.getCurrent_price()}"/>
+            <h4>Highest Bidder:</h4>
+            <p th:text="${userId}"/>
 
-</p>
-<form action="#" th:action="@{/toPayment/{user}/{id}(user=${userId},id=${auctionItem.getId()})}" method="get">
-    <label>
-        <input type="radio" name="expeditedShipping" value="true" >
-        Expedited Shipping: <p th:text="${auctionItem.getShip_price_ex()}" />
-    </label>
-    <br/>
-    <button>
-        Pay Now
-    </button>
-</form>
+            </p>
+            <form action="#" th:action="@{/toPayment/{user}/{id}(user=${userId},id=${auctionItem.getId()})}"
+                  method="get">
+                <label>
+                    <input type="radio" name="expeditedShipping" value="true">
+                    Expedited Shipping: <p th:text="${auctionItem.getShip_price_ex()}"/>
+                </label>
+                <br/>
+                <button>
+                    Pay Now
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
